@@ -4,7 +4,8 @@ import java.math.BigDecimal;
 import java.time.Month;
 import java.util.Map;
 
-public class GetMonthlyDataResponse {
+public class
+GetMonthlyDataResponse {
     private Map<Month, BigDecimal> monthWiseData;
     public void setMonthWiseData(Map<Month, BigDecimal> monthWiseData) {
         this.monthWiseData = monthWiseData;

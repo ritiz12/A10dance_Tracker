@@ -10,12 +10,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "attendance")
-public class Attendance {
+@Table(name = "attendance" )
+public class Attendance extends Model{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+
    // @NonNull()
    // @NotBlank(message = "")
   ////  @NotEmpty(message = "")
@@ -25,8 +23,9 @@ public class Attendance {
   //  @NonNull()
   //  @NotBlank(message = "")
   //  @NotEmpty(message = "")
-    @Column(length = 100 , name = "logOutTime" , nullable = true , updatable = false)
+    @Column(length = 100 , name = "logOutTime" , nullable = true )
     private LocalTime logOutTime;
+
 
   //  @NonNull()
     //@NotBlank(message = "")

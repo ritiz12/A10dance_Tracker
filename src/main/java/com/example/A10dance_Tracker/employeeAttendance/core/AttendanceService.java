@@ -41,10 +41,13 @@ public class AttendanceService {
         return response;
     }
 
-    public PostLogOutResponse saveLogOutTime() {
+
+   public PostLogOutResponse saveLogOutTime() {
+
+
         LocalDateTime currentDateTime = LocalDateTime.now();
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String formattedTime = currentDateTime.format(timeFormatter);
         String formattedDate = currentDateTime.format(dateFormatter);
         Attendance attendance = attendanceRepository.findByLogInDate(LocalDate.parse(formattedDate, dateFormatter));
@@ -52,11 +55,34 @@ public class AttendanceService {
         attendanceRepository.save(attendance);
         PostLogOutResponse response = new PostLogOutResponse();
         response.setLogOutTime(LocalTime.parse(formattedTime, timeFormatter));
-        response.setLogOutDate(LocalDate.parse(formattedDate, dateFormatter));
-            return response;
-
+        response.setLogOut(true);
+        return response;
 
     }
+
+
+    public AutomaticPostLogOutResponse automaticSaveLogOutTime()
+    {
+        var response = new AutomaticPostLogOutResponse();
+        if(!response.getLogOut())
+        {
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String formattedTime = currentDateTime.format(timeFormatter);
+            String formattedDate = currentDateTime.format(dateFormatter);
+            Attendance attendance = attendanceRepository.findByLogInDate(LocalDate.parse(formattedDate, dateFormatter));
+            attendance.setLogOutTime(LocalTime.parse(formattedTime, timeFormatter));
+            attendanceRepository.save(attendance);
+            response.setLogOutTime(LocalTime.parse(formattedTime, timeFormatter));
+
+
+        }
+        response.setLogOut(false);
+        return response;
+    }
+
+
 
     public GetMonthlyDataResponse getMonthlyWorkingTime(GetMonthlyDataRequest getMonthlyDataRequest) {
         LocalDate startDate = LocalDate.now().minusMonths(2).withDayOfMonth(1);
