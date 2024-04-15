@@ -15,9 +15,6 @@ public interface AttendanceRepository extends JpaRepository<Attendance,String> {
  //   Attendance findByLogInDate(LocalDate parse);
  @Query("SELECT a FROM Attendance a WHERE a.logInDate = :logInDate")
  Attendance findByLogInDate(@Param("logInDate") LocalDate logInDate);
-    List<GetMonthlyDataSummary> findByLogInDateGreaterThanEqual(LocalDate startDate);
+    List<Attendance> findByLogInDateGreaterThanEqual(LocalDate startDate);
 
-    Attendance findByLogInDateAndId(LocalDate localDate, int i);
-
-    //   Attendance findByLogInDate(LocalDate parse);
 }

@@ -1,29 +1,25 @@
 package com.example.A10dance_Tracker.employeeAttendance.data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class GetMonthlyDataSummary {
 
-    final private LocalTime logInTime;
-    final private LocalTime logOutTime;
-    final private LocalDate logInDate ;
 
-    public GetMonthlyDataSummary(LocalTime logInTime, LocalTime logOutTime, LocalDate logInDate) {
-        this.logInTime = logInTime;
-        this.logOutTime = logOutTime;
-        this.logInDate = logInDate;
+    final private String  monthYear ;
+    final private BigDecimal MonthlyWorkingHaours ;
+
+    public GetMonthlyDataSummary(String monthYear, BigDecimal monthlyWorkingHaours) {
+        this.monthYear = monthYear;
+        MonthlyWorkingHaours = monthlyWorkingHaours;
     }
 
-    public LocalTime getLogInTime() {
-        return logInTime;
+    public String getMonthYear() {
+        return monthYear;
     }
 
-    public LocalTime getLogOutTime() {
-        return logOutTime;
-    }
-
-    public LocalDate getLogInDate() {
-        return logInDate;
+    public BigDecimal getMonthlyWorkingHaours() {
+        return MonthlyWorkingHaours;
     }
 }

@@ -34,7 +34,7 @@ public class AttendanceService {
         attendance.setLogInTime(LocalTime.parse(formattedTime, timeFormatter));
         attendance.setLogInDate(LocalDate.parse(formattedDate, dateFormatter));
         attendanceRepository.save(attendance);
-        PostLogInResponse response = new PostLogInResponse();
+      final   PostLogInResponse response = new PostLogInResponse();
         response.setLogInTime(LocalTime.parse(formattedTime, timeFormatter));
         response.setLogInDate(LocalDate.parse(formattedDate, dateFormatter));
 
@@ -53,7 +53,7 @@ public class AttendanceService {
         Attendance attendance = attendanceRepository.findByLogInDate(LocalDate.parse(formattedDate, dateFormatter));
         attendance.setLogOutTime(LocalTime.parse(formattedTime, timeFormatter));
         attendanceRepository.save(attendance);
-        PostLogOutResponse response = new PostLogOutResponse();
+       final   PostLogOutResponse response = new PostLogOutResponse();
         response.setLogOutTime(LocalTime.parse(formattedTime, timeFormatter));
         response.setLogOut(true);
         return response;
@@ -63,7 +63,7 @@ public class AttendanceService {
 
     public AutomaticPostLogOutResponse automaticSaveLogOutTime()
     {
-        var response = new AutomaticPostLogOutResponse();
+      final var response = new AutomaticPostLogOutResponse();
         if(!response.getLogOut())
         {
             LocalDateTime currentDateTime = LocalDateTime.now();
@@ -82,28 +82,29 @@ public class AttendanceService {
         return response;
     }
 
-
-
     public GetMonthlyDataResponse getMonthlyWorkingTime(GetMonthlyDataRequest getMonthlyDataRequest) {
+        final  var  response = new GetMonthlyDataResponse();
         LocalDate startDate = LocalDate.now().minusMonths(2).withDayOfMonth(1);
 
-        List<GetMonthlyDataSummary> attendanceRecordList = attendanceRepository.findByLogInDateGreaterThanEqual(startDate);
-        Map<Month, BigDecimal> monthWiseData = new HashMap<>();
-
+        final  List<Attendance> attendanceRecordList = attendanceRepository.findByLogInDateGreaterThanEqual(startDate);
+        Map<String, BigDecimal> map = new HashMap<>();
         for(final var attendance : attendanceRecordList)
         {
             if (attendance.getLogInTime() != null && attendance.getLogOutTime() != null )
             {
                 long workingTimeInMinutes = ChronoUnit.MINUTES.between(attendance.getLogInTime(), attendance.getLogOutTime());
-            BigDecimal workingTimeInHours = BigDecimal.valueOf(workingTimeInMinutes)
-                    .divide(BigDecimal.valueOf(60), 2, RoundingMode.HALF_UP);
-            Month month = attendance.getLogInDate().getMonth();
-            monthWiseData.compute(month,(key, value )->(value == null) ? workingTimeInHours : value.add(workingTimeInHours));
+                BigDecimal workingTimeInHours = BigDecimal.valueOf(workingTimeInMinutes).divide(BigDecimal.valueOf(60), 2, RoundingMode.HALF_UP);
+                Month month = attendance.getLogInDate().getMonth();
+                int  year = attendance.getLogInDate().getYear();
+                String monthYear = String.valueOf(month) + " " + year;
+                map.put(monthYear, map.getOrDefault(monthYear, BigDecimal.ZERO).add(workingTimeInHours));
 
+
+            }
         }
-    }
-       final  var response = new GetMonthlyDataResponse();
-        response.setMonthWiseData(monthWiseData);
+        for (final var entry: map.entrySet()) {
+            response.addMonthWiseData(new GetMonthlyDataSummary(entry.getKey(),entry.getValue()));
+        }
         return response;
     }
 }
