@@ -18,6 +18,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ Business Operation on Attendance
+ **/
+
 @Service
 public class AttendanceService {
 
@@ -98,7 +102,6 @@ public class AttendanceService {
                 int  year = attendance.getLogInDate().getYear();
                 String monthYear = String.valueOf(month) + " " + year;
                 map.put(monthYear, map.getOrDefault(monthYear, BigDecimal.ZERO).add(workingTimeInHours));
-
 
             }
         }

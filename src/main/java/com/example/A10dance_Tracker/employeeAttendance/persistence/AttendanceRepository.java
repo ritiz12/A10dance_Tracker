@@ -12,9 +12,10 @@ import java.util.List;
 
 @Repository
 public interface AttendanceRepository extends JpaRepository<Attendance,String> {
- //   Attendance findByLogInDate(LocalDate parse);
- @Query("SELECT a FROM Attendance a WHERE a.logInDate = :logInDate")
- Attendance findByLogInDate(@Param("logInDate") LocalDate logInDate);
-    List<Attendance> findByLogInDateGreaterThanEqual(LocalDate startDate);
 
+     @Query("SELECT a FROM Attendance a WHERE a.logInDate = :logInDate")
+     Attendance findByLogInDate(@Param("logInDate") LocalDate logInDate);
+     List<Attendance> findByLogInDateGreaterThanEqual(LocalDate startDate);
+
+    Attendance findTopByOrderByLogInDateDesc();
 }

@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-
+/**
+ * API for managing Attendance.
+ **/
 @RequestMapping("/attendance")
 @RestController
 public class AttendanceAPI {
@@ -19,6 +21,10 @@ public class AttendanceAPI {
     @Autowired
     private AttendanceService attendanceService;
 
+
+    /**
+     * Get Last 3  Month Wise Total Working Hour.
+     **/
     @RequestMapping()
     @GetMapping
     public ResponseEntity<GetMonthlyDataResponse> monthlyWorkingTime(final  LocalTime logInTime , final LocalTime logOutTime ,  final LocalDate logInDate)
@@ -26,6 +32,9 @@ public class AttendanceAPI {
         return ResponseEntity.ok(attendanceService.getMonthlyWorkingTime(new GetMonthlyDataRequest(logInTime , logOutTime  , logInDate)));
     }
 
+    /**
+     * Save LogIn Time and LogIn Date in Database .
+     **/
 
     @RequestMapping("/logIn")
     @PostMapping
@@ -35,6 +44,9 @@ public class AttendanceAPI {
        return ResponseEntity.ok(response);
     }
 
+    /**
+     * Save LogOut Time in Database matching certain criteria .
+     **/
 
     @RequestMapping("/logOut")
     @PostMapping
@@ -43,6 +55,10 @@ public class AttendanceAPI {
         PostLogOutResponse response = attendanceService.saveLogOutTime();
         return ResponseEntity.ok(response);
     }
+
+    /**
+     * Save LogOut Time in Database automatically at 12PM if User do not logOut  .
+     **/
     @Scheduled(cron = "0 0 15 * * *")
     public ResponseEntity<AutomaticPostLogOutResponse> automaticSaveLogOutTime()
     {

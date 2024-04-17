@@ -6,8 +6,10 @@ import org.springframework.lang.NonNull;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Null;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 @Table(name = "attendance" )
@@ -27,7 +29,7 @@ public class Attendance extends Model{
     private LocalTime logOutTime;
 
 
-  //  @NonNull()
+     //  @NonNull()
     //@NotBlank(message = "")
     //@NotEmpty(message = "")
     @Column(length = 100 , name = "logInDate" , nullable = true , updatable = false)
@@ -47,8 +49,10 @@ public class Attendance extends Model{
     }
 
     public void setLogInTime( LocalTime logInTime) {
+
         this.logInTime = logInTime;
     }
+
 
    // @NonNull
     public LocalTime getLogOutTime() {
