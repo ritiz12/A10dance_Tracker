@@ -18,4 +18,6 @@ public interface AttendanceRepository extends JpaRepository<Attendance,String> {
      List<Attendance> findByLogInDateGreaterThanEqual(LocalDate startDate);
 
     Attendance findTopByOrderByLogInDateDesc();
+
+    List<Attendance> findByLogInDateBetween(LocalDate startDate, LocalDate now);
 }

@@ -32,6 +32,19 @@ public class AttendanceAPI {
         return ResponseEntity.ok(attendanceService.getMonthlyWorkingTime(new GetMonthlyDataRequest(logInTime , logOutTime  , logInDate)));
     }
 
+
+    /**
+     * Get Last 5  Days Attendance Record .
+     **/
+    @RequestMapping("/hour")
+    @GetMapping
+    public ResponseEntity<GetPreviousRecordResponse> getPreviousRecord()
+    {
+        GetPreviousRecordResponse response = attendanceService.getPreviousRecord();
+        return ResponseEntity.ok(response);
+    }
+
+
     /**
      * Save LogIn Time and LogIn Date in Database .
      **/

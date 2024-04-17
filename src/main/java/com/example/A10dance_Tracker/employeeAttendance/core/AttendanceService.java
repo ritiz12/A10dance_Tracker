@@ -29,16 +29,25 @@ public class AttendanceService {
     private AttendanceRepository attendanceRepository ;
 
     public PostLogInResponse saveLogInTimeDate() {
+
         LocalDateTime currentDateTime = LocalDateTime.now();
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy");
         String formattedTime = currentDateTime.format(timeFormatter);
         String formattedDate = currentDateTime.format(dateFormatter);
+
+        Attendance existingRecord = attendanceRepository.findByLogInDate(LocalDate.now());
+        if(existingRecord != null && existingRecord.getLogInTime() != null)
+        {
+            throw new IllegalStateException("User is Already LogIn For Today !");
+        }
+
+
         Attendance attendance = new Attendance();
         attendance.setLogInTime(LocalTime.parse(formattedTime, timeFormatter));
         attendance.setLogInDate(LocalDate.parse(formattedDate, dateFormatter));
         attendanceRepository.save(attendance);
-      final   PostLogInResponse response = new PostLogInResponse();
+      final  PostLogInResponse response = new PostLogInResponse();
         response.setLogInTime(LocalTime.parse(formattedTime, timeFormatter));
         response.setLogInDate(LocalDate.parse(formattedDate, dateFormatter));
 
@@ -67,6 +76,7 @@ public class AttendanceService {
 
     public AutomaticPostLogOutResponse automaticSaveLogOutTime()
     {
+
       final var response = new AutomaticPostLogOutResponse();
         if(!response.getLogOut())
         {
@@ -108,6 +118,25 @@ public class AttendanceService {
         for (final var entry: map.entrySet()) {
             response.addMonthWiseData(new GetMonthlyDataSummary(entry.getKey(),entry.getValue()));
         }
+        return response;
+    }
+
+    public GetPreviousRecordResponse getPreviousRecord() {
+
+        final GetPreviousRecordResponse response = new GetPreviousRecordResponse();
+
+        LocalDate startDate = LocalDate.now().minusDays(5);
+
+        List<Attendance> attendanceRecords = attendanceRepository.findByLogInDateBetween(startDate, LocalDate.now());
+
+        for (Attendance record : attendanceRecords) {
+            response.addAttendanceRecord(new GetPreviousRecordSummary(
+                    record.getLogInTime(),
+                    record.getLogOutTime(),
+                    record.getLogInDate()
+            ));
+        }
+
         return response;
     }
 }

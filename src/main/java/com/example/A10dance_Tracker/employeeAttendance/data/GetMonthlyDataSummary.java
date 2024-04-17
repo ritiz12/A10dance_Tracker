@@ -8,11 +8,11 @@ public class GetMonthlyDataSummary {
 
 
     final private String  monthYear ;
-    final private BigDecimal MonthlyWorkingHaours ;
+    final private BigDecimal monthlyWorkingHours ;
 
-    public GetMonthlyDataSummary(String monthYear, BigDecimal monthlyWorkingHaours) {
+    public GetMonthlyDataSummary(String monthYear, BigDecimal monthlyWorkingHours) {
         this.monthYear = monthYear;
-        MonthlyWorkingHaours = monthlyWorkingHaours;
+        this.monthlyWorkingHours = monthlyWorkingHours;
     }
 
     public String getMonthYear() {
@@ -20,6 +20,6 @@ public class GetMonthlyDataSummary {
     }
 
     public BigDecimal getMonthlyWorkingHaours() {
-        return MonthlyWorkingHaours;
+        return monthlyWorkingHours;
     }
 }
