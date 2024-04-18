@@ -8,15 +8,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.Month;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  Business Operation on Attendance
@@ -28,46 +23,39 @@ public class AttendanceService {
     @Autowired
     private AttendanceRepository attendanceRepository ;
 
-    public PostLogInResponse saveLogInTimeDate() {
-
-        LocalDateTime currentDateTime = LocalDateTime.now();
+    public PostLogInResponse saveLogInTimeDate(PostLogInRequest request) {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy");
-        String formattedTime = currentDateTime.format(timeFormatter);
-        String formattedDate = currentDateTime.format(dateFormatter);
-
-        Attendance existingRecord = attendanceRepository.findByLogInDate(LocalDate.now());
-        if(existingRecord != null && existingRecord.getLogInTime() != null)
-        {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedTime = request.getCurrTime().format(timeFormatter);
+        String formattedDate = request.getCurrTime().format(dateFormatter);
+        Attendance existingRecord = attendanceRepository.findByLogInDate(request.getCurrTime().toLocalDate());
+        if(existingRecord != null && existingRecord.getLogInTime() != null) {
             throw new IllegalStateException("User is Already LogIn For Today !");
         }
-
 
         Attendance attendance = new Attendance();
         attendance.setLogInTime(LocalTime.parse(formattedTime, timeFormatter));
         attendance.setLogInDate(LocalDate.parse(formattedDate, dateFormatter));
-        attendanceRepository.save(attendance);
-      final  PostLogInResponse response = new PostLogInResponse();
-        response.setLogInTime(LocalTime.parse(formattedTime, timeFormatter));
-        response.setLogInDate(LocalDate.parse(formattedDate, dateFormatter));
+        attendance = attendanceRepository.save(attendance);
 
+        final  PostLogInResponse response = new PostLogInResponse();
+        response.setLogInTime(attendance.getLogInTime());
+        response.setLogInDate(attendance.getLogInDate());
         return response;
     }
 
 
-   public PostLogOutResponse saveLogOutTime() {
+   public PostLogOutResponse saveLogOutTime(PostLogOutRequest request) {
 
-
-        LocalDateTime currentDateTime = LocalDateTime.now();
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String formattedTime = currentDateTime.format(timeFormatter);
-        String formattedDate = currentDateTime.format(dateFormatter);
+        String formattedTime = request.getCurrTime().format(timeFormatter);
+        String formattedDate = request.getCurrTime().format(dateFormatter);
         Attendance attendance = attendanceRepository.findByLogInDate(LocalDate.parse(formattedDate, dateFormatter));
         attendance.setLogOutTime(LocalTime.parse(formattedTime, timeFormatter));
-        attendanceRepository.save(attendance);
+             attendance = attendanceRepository.save(attendance);
        final   PostLogOutResponse response = new PostLogOutResponse();
-        response.setLogOutTime(LocalTime.parse(formattedTime, timeFormatter));
+        response.setLogOutTime(attendance.getLogOutTime());
         response.setLogOut(true);
         return response;
 
@@ -78,7 +66,7 @@ public class AttendanceService {
     {
 
       final var response = new AutomaticPostLogOutResponse();
-        if(!response.getLogOut())
+        if(!response.getLogOut() )
         {
             LocalDateTime currentDateTime = LocalDateTime.now();
             DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
@@ -86,10 +74,12 @@ public class AttendanceService {
             String formattedTime = currentDateTime.format(timeFormatter);
             String formattedDate = currentDateTime.format(dateFormatter);
             Attendance attendance = attendanceRepository.findByLogInDate(LocalDate.parse(formattedDate, dateFormatter));
-            attendance.setLogOutTime(LocalTime.parse(formattedTime, timeFormatter));
-            attendanceRepository.save(attendance);
-            response.setLogOutTime(LocalTime.parse(formattedTime, timeFormatter));
 
+            if(attendance != null && attendance.getLogInTime() != null && attendance.getLogOutTime() == null) {
+                attendance.setLogOutTime(LocalTime.parse(formattedTime, timeFormatter));
+                attendanceRepository.save(attendance);
+                response.setLogOutTime(LocalTime.parse(formattedTime, timeFormatter));
+            }
 
         }
         response.setLogOut(false);
@@ -101,6 +91,7 @@ public class AttendanceService {
         LocalDate startDate = LocalDate.now().minusMonths(2).withDayOfMonth(1);
 
         final  List<Attendance> attendanceRecordList = attendanceRepository.findByLogInDateGreaterThanEqual(startDate);
+
         Map<String, BigDecimal> map = new HashMap<>();
         for(final var attendance : attendanceRecordList)
         {
@@ -120,15 +111,15 @@ public class AttendanceService {
         }
         return response;
     }
-
     public GetPreviousRecordResponse getPreviousRecord() {
 
         final GetPreviousRecordResponse response = new GetPreviousRecordResponse();
 
-        LocalDate startDate = LocalDate.now().minusDays(5);
+        LocalDate startDate = LocalDate.now().minusDays(6);
 
         List<Attendance> attendanceRecords = attendanceRepository.findByLogInDateBetween(startDate, LocalDate.now());
-
+    //    Collections.sort(attendanceRecords, Comparator.comparing(Attendance::getLogInDate).reversed());
+        Collections.reverse(attendanceRecords);
         for (Attendance record : attendanceRecords) {
             response.addAttendanceRecord(new GetPreviousRecordSummary(
                     record.getLogInTime(),

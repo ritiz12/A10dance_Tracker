@@ -9,11 +9,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 /**
  * API for managing Attendance.
  **/
+@CrossOrigin(origins="http://localhost:5173")
 @RequestMapping("/attendance")
 @RestController
 public class AttendanceAPI {
@@ -36,9 +38,9 @@ public class AttendanceAPI {
     /**
      * Get Last 5  Days Attendance Record .
      **/
-    @RequestMapping("/hour")
+    @RequestMapping("/record")
     @GetMapping
-    public ResponseEntity<GetPreviousRecordResponse> getPreviousRecord()
+    public ResponseEntity<GetPreviousRecordResponse> getPreviousRecord(final  LocalTime logInTime , final LocalTime logOutTime ,  final LocalDate logInDate)
     {
         GetPreviousRecordResponse response = attendanceService.getPreviousRecord();
         return ResponseEntity.ok(response);
@@ -49,12 +51,11 @@ public class AttendanceAPI {
      * Save LogIn Time and LogIn Date in Database .
      **/
 
-    @RequestMapping("/logIn")
-    @PostMapping
-    public ResponseEntity<PostLogInResponse> logInTimeDate()
-    {
-       PostLogInResponse response =  attendanceService.saveLogInTimeDate();
-       return ResponseEntity.ok(response);
+    @PostMapping("/logIn")
+    public ResponseEntity<PostLogInResponse> logInTimeDate(@RequestBody PostLogInRequest request) {
+        LocalDateTime currTime = request.getCurrTime();
+        final var response =  attendanceService.saveLogInTimeDate(request);
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -63,16 +64,16 @@ public class AttendanceAPI {
 
     @RequestMapping("/logOut")
     @PostMapping
-    public ResponseEntity<PostLogOutResponse> logOutTime()
+    public ResponseEntity<PostLogOutResponse> logOutTime(@RequestBody PostLogOutRequest request )
     {
-        PostLogOutResponse response = attendanceService.saveLogOutTime();
+        PostLogOutResponse response = attendanceService.saveLogOutTime(request);
         return ResponseEntity.ok(response);
     }
 
     /**
      * Save LogOut Time in Database automatically at 12PM if User do not logOut  .
      **/
-    @Scheduled(cron = "0 0 15 * * *")
+    @Scheduled(cron = "0 59 23 ? * MON-FRI")
     public ResponseEntity<AutomaticPostLogOutResponse> automaticSaveLogOutTime()
     {
         AutomaticPostLogOutResponse response = attendanceService.automaticSaveLogOutTime();
